@@ -2,30 +2,30 @@ var checkPaths = new Set();
 var cps = 0;
 var runningFileCheck = false;
 
-function checkExists(path){
-	if(path == null || path.includes("black.png") || path.includes("chr_0127_1f_r18.png")){
+function checkExists(path) {
+	if (path == null || path.includes("black.png") || path.includes("chr_0127_1f_r18.png")) {
 		checkPaths.delete(path);
 		cps--;
 		finishFileCheck();
 		return;
 	}
 	let file = "";
-	if(path.includes("images")){
+	if (path.includes("images")) {
 		file = new Image();
-		file.onload = function(){
+		file.onload = function () {
 			checkPaths.delete(path);
 			cps--;
 			finishFileCheck();
 		}
 	} else {
 		file = new Audio();
-		file.oncanplay = function(){
+		file.oncanplay = function () {
 			checkPaths.delete(path);
 			cps--;
 			finishFileCheck();
 		}
 	}
-	file.onerror = function(){
+	file.onerror = function () {
 		cps--;
 		finishFileCheck();
 		console.log("Missing: " + path);
@@ -33,69 +33,69 @@ function checkExists(path){
 	file.src = path;
 }
 
-function fileCheck(ids=Object.keys(sceneData)){
+function fileCheck(ids = Object.keys(sceneData)) {
 	runningFileCheck = true;
 	console.log("Running File Check:");
-	for(id of ids){
+	for (id of ids) {
 		let sscript = sceneData[id].SCRIPTS.PART1.SCRIPT;
-		for(command of sscript){
+		for (command of sscript) {
 			let src;
 			let data = command.includes(">") ? command.split(">")[1] : command;
-			switch(command.substr(1, command.lastIndexOf(">") -1)){
+			switch (command.substr(1, command.lastIndexOf(">") - 1)) {
 				case "EV":
-					src = constructImagePath(command.substr(command.lastIndexOf(">") +1, command.indexOf(",") - (command.lastIndexOf(">") +1)), id, ".webp");
-				break;
+					src = constructImagePath(command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)), id, ".png");
+					break;
 				case "ACTOR":
 					src = constructImagePath(command.substr(command.indexOf(",") + 1, command.substr(command.indexOf(",") + 1).indexOf(",")), id);
-				break;
+					break;
 				case "BG":
-					src = constructImagePath(data.split(",")[0].trim(), id, ".webp");
-				break;
+					src = constructImagePath(data.split(",")[0].trim(), id, ".png");
+					break;
 				case "BGM_PLAY":
-					src = constructBGMAudioPath(command.substr(command.lastIndexOf(">") +1, command.indexOf(",") - (command.lastIndexOf(">") +1)));
-				break;
+					src = constructBGMAudioPath(command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)));
+					break;
 				case "SE_PLAY":
-					src = constructSEAudioPath(command.substr(command.lastIndexOf(">") +1));
-				break;
+					src = constructSEAudioPath(command.substr(command.lastIndexOf(">") + 1));
+					break;
 				case "VOICE_PLAY":
-					src = constructVoiceAudioPath(command.substr(command.lastIndexOf(">") +1), id);
-				break;
+					src = constructVoiceAudioPath(command.substr(command.lastIndexOf(">") + 1), id);
+					break;
 				default:
-				break;
+					break;
 			}
 			checkPaths.add(src);
 		}
 	}
 	cps = checkPaths.size;
-	for(let path of checkPaths){
+	for (let path of checkPaths) {
 		checkExists(path);
 	}
 }
 
-function finishFileCheck(){
-	if(cps == 0){
+function finishFileCheck() {
+	if (cps == 0) {
 		runningFileCheck = false;
 		console.log("Finished File Check!");
 		console.log(checkPaths.size + " file(s) missing.");
 	}
 }
 
-function getTagList(){
+function getTagList() {
 	dbgDataTags = new Set();
-	for(let id of Object.keys(sceneData)){
-		for(let tag of sceneData[id].script){
+	for (let id of Object.keys(sceneData)) {
+		for (let tag of sceneData[id].script) {
 			dbgDataTags.add(tag.substr(0, tag.lastIndexOf(">") + 1))
 		}
 	}
 }
 
-function getTag(tag, log=false){
+function getTag(tag, log = false) {
 	var dbgFullCmd = new Set();
-	for(let id of Object.keys(sceneData)){
-		for(let cmd of sceneData[id].script){
-			if(cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag){
+	for (let id of Object.keys(sceneData)) {
+		for (let cmd of sceneData[id].script) {
+			if (cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag) {
 				dbgFullCmd.add(cmd);
-				if(log){
+				if (log) {
 					console.log(id + ": " + cmd)
 				}
 			}
@@ -103,7 +103,7 @@ function getTag(tag, log=false){
 	}
 }
 
-function setTestPrefs(){
+function setTestPrefs() {
 	prefs.viewer.pauseOnFocusLoss = false;
 	prefs.scene.eng = false;
 	prefs.scene.skipAnim = false;
@@ -119,17 +119,17 @@ function setTestPrefs(){
 	prefs.scene.autoDelay = 0;
 }
 
-function getTagCommand(tag, idx, log=false){
-	 let dbgCmd = new Set();
-	for(let id of Object.keys(sceneData)){
-		if(!sceneData[id].rpgx){
+function getTagCommand(tag, idx, log = false) {
+	let dbgCmd = new Set();
+	for (let id of Object.keys(sceneData)) {
+		if (!sceneData[id].rpgx) {
 			continue;
 		}
-		for(let cmd of sceneData[id].SCRIPTS.PART1.SCRIPT){
-			if(cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag){
+		for (let cmd of sceneData[id].SCRIPTS.PART1.SCRIPT) {
+			if (cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag) {
 				let basecmd = cmd.split(">")[1].split(",")[idx];
 				dbgCmd.add(basecmd);
-				if(log){
+				if (log) {
 					console.log(id + ": " + basecmd);
 				}
 			}
@@ -138,27 +138,27 @@ function getTagCommand(tag, idx, log=false){
 	return dbgCmd;
 }
 
-function getNewNames(){
+function getNewNames() {
 	let names = Array.from(getTagCommand("<NAME_PLATE>", 0));
-	let untl=[];
-	for(let name of names){
+	let untl = [];
+	for (let name of names) {
 		let tl = translateName(name)
-		if(tl == name){
+		if (tl == name) {
 			untl.push(name);
 		}
 	}
 	return untl;
 }
 
-function getStoryTags(){
+function getStoryTags() {
 	let dbgStoryTags = new Set();
-	for(let key in storyData){
+	for (let key in storyData) {
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
+		for (let section in sections) {
 			let parts = sections[section];
-			for(let part in parts){
+			for (let part in parts) {
 				let script = parts[part].script;
-				for(let tag of script){
+				for (let tag of script) {
 					dbgStoryTags.add(tag.substr(0, tag.lastIndexOf(">") + 1))
 				}
 			}
@@ -167,20 +167,20 @@ function getStoryTags(){
 	console.log(dbgStoryTags);
 }
 
-function getStoryTagCommand(tag, idx, log=false){
+function getStoryTagCommand(tag, idx, log = false) {
 	dbgStoryTags = new Set();
-	for(let key in storyData){
+	for (let key in storyData) {
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
+		for (let section in sections) {
 			let parts = sections[section];
-			for(let part in parts){
+			for (let part in parts) {
 				let script = parts[part].SCRIPT;
-				for(let cmd of script){
-					if(cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag){
+				for (let cmd of script) {
+					if (cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag) {
 						let basecmd = cmd.split(">")[1].split(",")[idx];
 						dbgStoryTags.add(basecmd);
-						if(log){
-							console.log(key + "- " + section + " - " + part + ":"  + basecmd);
+						if (log) {
+							console.log(key + "- " + section + " - " + part + ":" + basecmd);
 						}
 					}
 				}
@@ -191,23 +191,23 @@ function getStoryTagCommand(tag, idx, log=false){
 }
 
 
-function getStorySpecificTagCommand(tag, idx, value=null, log=false){
+function getStorySpecificTagCommand(tag, idx, value = null, log = false) {
 	dbgStoryTags = new Set();
-	for(let key in storyData){
+	for (let key in storyData) {
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
+		for (let section in sections) {
 			let parts = sections[section];
-			for(let part in parts){
+			for (let part in parts) {
 				let script = parts[part].SCRIPT;
-				for(let cmd of script){
-					if(cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag){
+				for (let cmd of script) {
+					if (cmd.substr(0, cmd.lastIndexOf(">") + 1) == tag) {
 						let basecmd = cmd.split(">")[1].split(",")[idx];
-						if(value != null && basecmd == value){
-							console.log(key + "- " + section + " - " + part + ":"  + basecmd);
+						if (value != null && basecmd == value) {
+							console.log(key + "- " + section + " - " + part + ":" + basecmd);
 						}
 						dbgStoryTags.add(basecmd);
-						if(log){
-							console.log(key + "- " + section + " - " + part + ":"  + basecmd);
+						if (log) {
+							console.log(key + "- " + section + " - " + part + ":" + basecmd);
 						}
 					}
 				}
@@ -217,31 +217,31 @@ function getStorySpecificTagCommand(tag, idx, value=null, log=false){
 }
 
 var f = [];
-function searchScripts(word, exclude=[]){
+function searchScripts(word, exclude = []) {
 	let found = [];
-	for(let key in storyData){
+	for (let key in storyData) {
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
+		for (let section in sections) {
 			let parts = sections[section];
-			for(let part in parts){
+			for (let part in parts) {
 				let script = parts[part].SCRIPT;
-				for(let cmd of script){
-					if(cmd.startsWith("　") && cmd.includes(word)){
+				for (let cmd of script) {
+					if (cmd.startsWith("　") && cmd.includes(word)) {
 						found.push(`${key} - ${section} - ${part} - ${script.indexOf(cmd)}: ${cmd}`);
 					}
 				}
 			}
 		}
 	}
-	for(let id of Object.keys(sceneData)){
-		if(!sceneData[id].rpgx){
+	for (let id of Object.keys(sceneData)) {
+		if (!sceneData[id].rpgx) {
 			continue;
 		}
 		let script = sceneData[id].SCRIPTS.PART1.SCRIPT;
-		for(let command of script){
+		for (let command of script) {
 			let tag = command.substr(command.indexOf("<") + 1, command.indexOf(">") - (command.indexOf("<") + 1));
 			let data = command.includes(">") ? command.split(">")[1] : command;
-			if(tag == "" && data.includes(word)){
+			if (tag == "" && data.includes(word)) {
 				found.push(`${id} - ${script.indexOf(data)}: ${data}`);
 			}
 		}
@@ -249,29 +249,29 @@ function searchScripts(word, exclude=[]){
 
 	return found.filter(excludeValues);
 
-	function excludeValues(value){
-		for(let exclusion of exclude){
-			if(value.indexOf(exclusion) > -1){
+	function excludeValues(value) {
+		for (let exclusion of exclude) {
+			if (value.indexOf(exclusion) > -1) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 }
 
 
-function findText(word, exclude=[]){
+function findText(word, exclude = []) {
 	let found = [];
-	for(let key in storyData){
+	for (let key in storyData) {
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
+		for (let section in sections) {
 			let parts = sections[section];
-			for(let part in parts){
+			for (let part in parts) {
 				let script = parts[part].SCRIPT;
 				let txt = findAllText(script);
-				for(let screen of txt){
-					if(screen.includes(word)){
+				for (let screen of txt) {
+					if (screen.includes(word)) {
 						found.push(`${key} - ${section} - ${part}: ${screen}`);
 					}
 				}
@@ -279,15 +279,15 @@ function findText(word, exclude=[]){
 		}
 	}
 
-	for(let id in sceneData){
-		if(!sceneData[id].rpgx){
+	for (let id in sceneData) {
+		if (!sceneData[id].rpgx) {
 			continue;
 		}
 		let script = sceneData[id].SCRIPTS.PART1.SCRIPT;
 		let txt = findAllText(script);
 
-		for(let screen of txt){
-			if(screen.includes(word)){
+		for (let screen of txt) {
+			if (screen.includes(word)) {
 				found.push(`${id}: ${screen}`);
 			}
 		}
@@ -295,9 +295,9 @@ function findText(word, exclude=[]){
 
 	return found.filter(excludeValues);
 
-	function excludeValues(value){
-		for(let exclusion of exclude){
-			if(value.indexOf(exclusion) > -1){
+	function excludeValues(value) {
+		for (let exclusion of exclude) {
+			if (value.indexOf(exclusion) > -1) {
 				return false;
 			}
 		}
@@ -307,14 +307,14 @@ function findText(word, exclude=[]){
 
 
 
-function findFurigana(){
+function findFurigana() {
 	let txt = findText("（");
 	let furiganaLines = [];
-	for(let line of txt){
+	for (let line of txt) {
 		let start = line.indexOf("（");
 		let kanjiStart;
-		if(start > 0){
-			if(line.substr(0, start).charCodeAt(start-1) >= 19968){
+		if (start > 0) {
+			if (line.substr(0, start).charCodeAt(start - 1) >= 19968) {
 				furiganaLines.push(line);
 			}
 		}
@@ -322,22 +322,22 @@ function findFurigana(){
 	return furiganaLines;
 }
 
-function findAllText(script){
+function findAllText(script) {
 	let pauses = 0;
 	let text = [];
-	for(let cmd of script){
-		if (cmd.indexOf("<") == -1){
-			if(text[pauses] == undefined){
+	for (let cmd of script) {
+		if (cmd.indexOf("<") == -1) {
+			if (text[pauses] == undefined) {
 				text[pauses] = cmd;
 			} else {
 				text[pauses] += cmd;
 			}
-			
-		} else if (cmd.startsWith("<PAUSE>")){
+
+		} else if (cmd.startsWith("<PAUSE>")) {
 			pauses++;
 		}
 	}
-	text = text.filter(function(x){
+	text = text.filter(function (x) {
 		return x !== undefined;
 	});
 	return text;
@@ -363,46 +363,46 @@ function findAllText(script){
 // 			} else {
 // 				scene.textBuffer[pauses] += cmd+"<br />";
 // 			}
-			
+
 // 		} else if (cmd.startsWith("<PAUSE>")){
 // 			pauses++;
 // 		}
 // 	}
 // }
 
-function storyCheck(){
+function storyCheck() {
 	let filePaths = new Set();
 	let iter;
 	let failed = [];
-	for(let key in storyData){
+	for (let key in storyData) {
 		console.log(key)
 		scene.type = STORY_RPGX
 		let sections = storyData[key].SECTIONS;
-		for(let section in sections){
-			for(let part in sections[section]){
-				for(let command of sections[section][part].script){
+		for (let section in sections) {
+			for (let part in sections[section]) {
+				for (let command of sections[section][part].script) {
 					let src;
-					switch(command.substr(1, command.lastIndexOf(">") -1)){
+					switch (command.substr(1, command.lastIndexOf(">") - 1)) {
 						case "EV":
-							src = createImagePath(command.substr(command.lastIndexOf(">") +1, command.indexOf(",") - (command.lastIndexOf(">") +1)).trim(), ".webp");
+							src = createImagePath(command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)).trim(), ".png");
 							break;
 						case "BG":
-							src = createImagePath(command.substr(command.lastIndexOf(">") +1, command.indexOf(",") - (command.lastIndexOf(">") +1)).trim(), ".webp");
-						break;
+							src = createImagePath(command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)).trim(), ".png");
+							break;
 						case "ACTOR":
 							src = createImagePath(command.substr(command.indexOf(",") + 1, command.substr(command.indexOf(",") + 1).indexOf(",")).trim());
-						break;
+							break;
 						case "BGM_PLAY":
-							src = constructBGMAudioPath(command.substr(command.lastIndexOf(">") +1, command.indexOf(",") - (command.lastIndexOf(">") +1)).trim());
-						break;
+							src = constructBGMAudioPath(command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)).trim());
+							break;
 						case "SE_PLAY":
-							src = constructSEAudioPath(command.substr(command.lastIndexOf(">") +1).trim());
-						break;
+							src = constructSEAudioPath(command.substr(command.lastIndexOf(">") + 1).trim());
+							break;
 						case "VOICE_PLAY":
-							src = constructVoiceAudioPath(command.substr(command.lastIndexOf(">") +1).trim(), scene.id);
-						break;
+							src = constructVoiceAudioPath(command.substr(command.lastIndexOf(">") + 1).trim(), scene.id);
+							break;
 						default:
-						break;
+							break;
 					}
 					filePaths.add(src);
 
@@ -415,33 +415,33 @@ function storyCheck(){
 	let filesLoaded = 0;
 	testFiles();
 
-	function testFiles(){
+	function testFiles() {
 		let path = iter.next().value;
-		if(path == null){
+		if (path == null) {
 			console.log("Loaded " + filesLoaded + "/" + filePaths.size + " files.");
 			console.log(failed);
 			return
 		}
-		let ext = path.substr(path.lastIndexOf(".")  + 1);
-		if(ext == "png"){
+		let ext = path.substr(path.lastIndexOf(".") + 1);
+		if (ext == "png") {
 			let img = new Image();
-			img.onload = function(){
+			img.onload = function () {
 				filesLoaded++;
 				testFiles();
 			}
-			img.onerror = function(){
+			img.onerror = function () {
 				failed.push(path);
 				testFiles();
 			}
 			img.src = path;
 
-		} else if(ext == "ogg"){
+		} else if (ext == "ogg") {
 			let audio = new Audio();
-			audio.oncanplay = function(){
+			audio.oncanplay = function () {
 				filesLoaded++;
 				testFiles();
 			}
-			audio.onerror = function(){
+			audio.onerror = function () {
 				failed.push(path);
 				testFiles();
 			}
@@ -451,7 +451,7 @@ function storyCheck(){
 }
 
 
-function calcMas(ms, mas, imas, maxmas, secs){
+function calcMas(ms, mas, imas, maxmas, secs) {
 	return (((ms * (mas / maxmas)) + (imas * ((maxmas / 99) / 10))) * secs) * 0.5;
 }
 https://zu9j1t6ekm.user-space.cdn.idcfcloud.net/asset_bundle_2019_2/webgl/webgl?v=700000000000000000

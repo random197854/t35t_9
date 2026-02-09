@@ -42,14 +42,14 @@ function preloadSceneResources(script) {
 				if (fn == "black" || fn == "white") {
 					continue;
 				}
-				src = createImagePath(fn, ".webp");
+				src = createImagePath(fn, ".png");
 				break;
 			case "BG":
 				fn = command.substr(command.lastIndexOf(">") + 1, command.indexOf(",") - (command.lastIndexOf(">") + 1)).trim();
 				if (fn == "black" || fn == "white") {
 					continue;
 				}
-				src = createImagePath(fn, ".webp");
+				src = createImagePath(fn, ".png");
 				break;
 			case "ACTOR":
 				fn = command.substr(command.indexOf(",") + 1, command.substr(command.indexOf(",") + 1).indexOf(",")).trim();
@@ -454,7 +454,7 @@ function drawImage(canvas, file, callback = null) {
 		}
 		image.src = createImagePath(file);
 		*/
-		let path = createImagePath(file, ".webp");
+		let path = createImagePath(file, ".png");
 
 		let image = new Image();
 		image.onload = function () {
@@ -472,7 +472,7 @@ function drawImage(canvas, file, callback = null) {
 }
 
 function createImagePath(file, ext = ".png") {
-	return assetBaseUrl + "imagenes/" + file + ext;
+	return assetBaseUrl + "imagenes/" + file.toLowerCase() + ext;
 }
 
 function getCommandData(script, tag, idx = null) {
@@ -495,18 +495,18 @@ function getCommandData(script, tag, idx = null) {
 // }
 
 function constructImagePath(src, id, ext = ".png") {
-	return assetBaseUrl + "imagenes/" + src + ext;
+	return assetBaseUrl + "imagenes/" + src.toLowerCase() + ext;
 }
 function constructVoiceAudioPath(src, id) {
-	return assetBaseUrl + "audio/voices/" + src + ".ogg";
+	return assetBaseUrl + "audio/voices/" + src.toLowerCase() + ".ogg";
 }
 
 function constructBGMAudioPath(src) {
-	return assetBaseUrl + "audio/bgm/" + src + ".ogg";
+	return assetBaseUrl + "audio/bgm/" + src.toLowerCase() + ".ogg";
 }
 
 function constructSEAudioPath(src) {
-	return assetBaseUrl + "audio/sfx/" + src + ".ogg";
+	return assetBaseUrl + "audio/sfx/" + src.toLowerCase() + ".ogg";
 }
 
 function emptyTempPreload() {

@@ -843,7 +843,7 @@ async function runSceneCommands() {
 					killChildren(otherBgElem);
 
 					scene.alt.bg = !scene.alt.bg
-					bgElem.style.backgroundImage = "url('" + createImagePath(bgImg, ".webp") + "')";
+					bgElem.style.backgroundImage = "url('" + createImagePath(bgImg, ".png") + "')";
 				}
 				if (bgMoving != "NONE" && !scene.script[scene.index].includes("<TRANSITION>")) {
 					animateElement(bgElem, bgDur, "fade-in", true);
